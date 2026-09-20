@@ -20,13 +20,13 @@ permissions:
 jobs:
   lavoro:
     runs-on: macos-latest
-    timeout-minutes: 55
+    timeout-minutes: 350
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - run: pip install selenium requests
+      - run: pip install selenium requests pillow
       - name: Abilita safaridriver
         run: sudo safaridriver --enable
       - name: Lotto di lavori
