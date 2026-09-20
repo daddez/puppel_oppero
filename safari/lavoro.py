@@ -15,11 +15,13 @@ Cosa fa, in ordine:
 import os, re, sys, time, urllib.parse
 
 import requests
+import urllib3
 from selenium import webdriver
 
 sys.path.insert(0, os.path.dirname(__file__))
 from comune import JS_STRUTTURA, Cursore, assicura_pagina_completa  # noqa: E402
 
+urllib3.disable_warnings()
 MAX_PASSI = 10
 TEMPO_LAVORO_S = 240
 TEMPO_TOTALE_S = 45 * 60
@@ -262,7 +264,12 @@ def esegui_lavoro(d, srv, lavoro):
         blobs = [("html", html.encode("utf-8"), url_fin)]
         for u in da_scaricare[:MAX_ALLEGATI]:
             try:
-                r = sess.get(u, timeout=60, stream=True)
+                try:
+                    r = sess.get(u, timeout=60, stream=True)
+                except requests.exceptions.SSLError:
+                    # catena di certificati incompleta sul sito dell'ente (Safari la tollera): file pubblico dello
+                    # stesso dominio, il server ne verifica comunque il contenuto
+                    r = sess.get(u, timeout=60, stream=True, verify=False)
                 if r.status_code != 200:
                     continue
                 buf = b""
