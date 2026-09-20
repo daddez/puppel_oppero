@@ -1,0 +1,35 @@
+name: safari-lavoro
+
+# Esecutore muto su Safari vero. L'unico input è l'ID della sessione (non sensibile): indirizzo e token
+# unici del lotto stanno in un secret creato dal server per questo solo lancio e cancellato a fine lotto.
+on:
+  workflow_dispatch:
+    inputs:
+      sessione:
+        description: "ID della sessione"
+        required: true
+        type: string
+
+concurrency:
+  group: safari-lavoro
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  lavoro:
+    runs-on: macos-latest
+    timeout-minutes: 55
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install selenium requests
+      - name: Abilita safaridriver
+        run: sudo safaridriver --enable
+      - name: Lotto di lavori
+        env:
+          SESSIONE: ${{ secrets[format('SESS_{0}', inputs.sessione)] }}
+        run: python safari/lavoro.py
