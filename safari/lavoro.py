@@ -134,8 +134,12 @@ def esegui_lavoro(d, srv, lavoro):
     da_scaricare, passi_eseguiti, storia = [], [], []
     trovato, motivo, ricetta_id = False, "", None
 
+    eventi = []
+
     def log(x):
         print(f"  {x}"[:200], flush=True)
+        if len(eventi) < 60:
+            eventi.append({"micro": "passo del browser", "dettaglio": str(x)[:300]})
 
     def accoda(u):
         if u and u not in da_scaricare and dominio_base(u) == dominio_base(url0):
@@ -283,7 +287,7 @@ def esegui_lavoro(d, srv, lavoro):
             trovato, motivo = False, "caricamento non riuscito"
 
     srv.chiama("fine", {"lavoroId": lid, "host": host, "struttura": struttura, "ricettaIdUsata": ricetta_id, "trovato": trovato,
-                        "passiEseguiti": passi_eseguiti, "urlFinale": url_fin, "file": file_ok, "motivo": motivo})
+                        "passiEseguiti": passi_eseguiti, "urlFinale": url_fin, "file": file_ok, "motivo": motivo, "eventi": eventi})
     log(f"lavoro concluso: {'trovato' if trovato else 'non trovato'} ({len(file_ok)} file, {round(time.time() - t0)}s)")
 
 
